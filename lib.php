@@ -225,12 +225,25 @@ function add_image_insert_override($size_names){
                           'thumbnail' => __('Thumbnail'),
                           'medium'    => __('Medium'),
                           'large'     => __('Large'),
+                          'full'     => __('Full'),
                         );
       return $size_names;
 };
 
 add_filter('image_size_names_choose', 'add_image_insert_override' );
 
+/**
+ * Set attachment settings (normally images inserted in post) 
+ * @author Xavier Meler (jmeler@xtec.cat)
+ * This function is attached to the 'after_setup_theme' action hook.
+ * http://bavotasan.com/2013/set-default-attachment-display-settings-in-wordpress/
+ */
+function default_attachment_display_settings() {
+	update_option( 'image_default_align', 'none' );
+	update_option( 'image_default_link_type', 'file' );
+	update_option( 'image_default_size', 'large' );
+}
+add_action( 'after_setup_theme', 'default_attachment_display_settings' );
 
 /**
  * RSS Shortcode
