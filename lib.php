@@ -436,3 +436,84 @@ function social_login_hide_elements() {
     }
 }
 
+/**
+ * WP_Social_login modifications
+ * 
+ * Hide filter_profile, profile_completion and membership_level sections for non xtecadmin user
+ * Added blacklist feature, added blacklist section
+ * Reorder sections to adjust to the new authentication process
+ * 
+ * @author Xavi Meler
+ */
+// Register new settings for email's blacklist feature
+add_action('wsl_register_setting', 'register_blacklist_email');
+
+function register_blacklist_email() {
+    register_setting('wsl-settings-group-bouncer', 'wsl_settings_bouncer_new_users_restrict_blacklist_enabled');
+    register_setting('wsl-settings-group-bouncer', 'wsl_settings_bouncer_new_users_restrict_blacklist_list');
+    register_setting('wsl-settings-group-bouncer', 'wsl_settings_bouncer_new_users_restrict_blacklist_text_bounce');
+}
+
+
+/* Access Control tab modifications */
+add_filter('wsl_component_bouncer_setup_alter_sections', 'overwrite_setup_sections');
+
+function overwrite_setup_sections($sections) {
+    $sections = array(
+        'wsl_widget' => 'wsl_component_bouncer_setup_wsl_widget',
+        'filters_blacklist_mails' => 'wsl_component_bouncer_setup_filters_blacklist_mails',
+        'filters_whitelist_mails' => 'wsl_component_bouncer_setup_filters_mails',
+        'filters_domains' => 'wsl_component_bouncer_setup_filters_domains',
+        'user_moderation' => 'wsl_component_bouncer_setup_user_moderation',
+    );
+
+    if (is_xtec_super_admin()) {
+        $sections['filters_urls'] = 'wsl_component_bouncer_setup_filters_urls';
+        $sections['membership_level'] = 'wsl_component_bouncer_setup_filters_urls';
+        $sections['profile_completion'] = 'wsl_component_bouncer_setup_profile_completion';
+    }
+
+    return $sections;
+}
+
+
+// Blacklist setup section
+function wsl_component_bouncer_setup_filters_blacklist_mails() {
+?>
+    <div class="stuffbox">
+    	<h3>
+    		<label><?php _wsl_e("BLACKLIST", 'wordpress-social-login') ?></label>
+    	</h3>
+    	<div class="inside"> 
+    		<p>     
+                <?php _wsl_e("Email addresses of blocked users", 'wordpress-social-login') ?>.
+            </p>
+    		<table width="100%" border="0" cellpadding="5" cellspacing="2" style="border-top:1px solid #ccc;">  
+    		  <tr>
+    			<td width="200" align="right"><strong><?php _wsl_e("Enabled", 'wordpress-social-login') ?> :</strong></td>
+    			<td> 
+    				<select name="wsl_settings_bouncer_new_users_restrict_blacklist_enabled">
+    					<option <?php if (get_option('wsl_settings_bouncer_new_users_restrict_blacklist_enabled') == 1) echo "selected"; ?> value="1"><?php _wsl_e("Yes", 'wordpress-social-login') ?></option>
+    					<option <?php if (get_option('wsl_settings_bouncer_new_users_restrict_blacklist_enabled') == 2) echo "selected"; ?> value="2"><?php _wsl_e("No", 'wordpress-social-login') ?></option> 
+    				</select>
+    			</td>
+    		  </tr>   
+    		  <tr>
+    			<td width="200" align="right" valign="top"><p><strong><?php _wsl_e("E-mails list", 'wordpress-social-login') ?> :</strong></p></td>
+    			<td> 
+    				<textarea style="width:100%;height:60px;margin-top:6px;" name="wsl_settings_bouncer_new_users_restrict_blacklist_list"><?php echo get_option('wsl_settings_bouncer_new_users_restrict_blacklist_list'); ?></textarea>  
+    			</td>
+    		  </tr>  
+    		  <tr>
+    			<td width="200" align="right" valign="top"><p><strong><?php _wsl_e("Bounce text", 'wordpress-social-login') ?> :</strong></p></td>
+    			<td> 
+                <?php
+                    wsl_render_wp_editor( "wsl_settings_bouncer_new_users_restrict_blacklist_text_bounce", get_option( 'wsl_settings_bouncer_new_users_restrict_blacklist_text_bounce')); 
+				?>
+			</td>
+		  </tr>  
+		</table>  
+	</div>
+</div>
+<?php
+}
