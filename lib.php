@@ -416,3 +416,23 @@ function get_current_post_type() {
     }
 }
 
+/**
+ * Hide tabs and sections for non superadmin users 
+ * @author Xavi Meler
+ */
+add_action('wsl_admin_main_start','social_login_hide_elements');
+
+function social_login_hide_elements() {
+    global $WORDPRESS_SOCIAL_LOGIN_ADMIN_TABS;
+
+    if (!is_xtec_super_admin()) {
+        // Hide tabs
+        $hide_elements = ["login-widget", "components", "tools", "help"];
+        foreach ($hide_elements as $hide_element) {
+            $WORDPRESS_SOCIAL_LOGIN_ADMIN_TABS[$hide_element]["visible"] = false;
+        }
+        // Hide upper right links (Documentation, Suport, Github)
+        echo "<style> .wsl-container .alignright { display:none; } </style>";
+    }
+}
+
