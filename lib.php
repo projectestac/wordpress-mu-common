@@ -464,13 +464,13 @@ function overwrite_setup_sections($sections) {
         'filters_blacklist_mails' => 'wsl_component_bouncer_setup_filters_blacklist_mails',
         'filters_whitelist_mails' => 'wsl_component_bouncer_setup_filters_mails',
         'filters_domains' => 'wsl_component_bouncer_setup_filters_domains',
-        'user_moderation' => 'wsl_component_bouncer_setup_user_moderation',
     );
 
     if (is_xtec_super_admin()) {
         $sections['filters_urls'] = 'wsl_component_bouncer_setup_filters_urls';
         $sections['membership_level'] = 'wsl_component_bouncer_setup_filters_urls';
         $sections['profile_completion'] = 'wsl_component_bouncer_setup_profile_completion';
+        $sections['user_moderation'] = 'wsl_component_bouncer_setup_user_moderation';
     }
 
     return $sections;
