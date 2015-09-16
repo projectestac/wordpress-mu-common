@@ -468,7 +468,7 @@ function overwrite_setup_sections($sections) {
 
     if (is_xtec_super_admin()) {
         $sections['filters_urls'] = 'wsl_component_bouncer_setup_filters_urls';
-        $sections['membership_level'] = 'wsl_component_bouncer_setup_filters_urls';
+        $sections['membership_level'] = 'wsl_component_bouncer_setup_membership_level';
         $sections['profile_completion'] = 'wsl_component_bouncer_setup_profile_completion';
         $sections['user_moderation'] = 'wsl_component_bouncer_setup_user_moderation';
     }
