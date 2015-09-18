@@ -220,17 +220,17 @@ add_filter('post-upload-ui', 'warning_size_image');
  * https://gist.github.com/wycks/4949242
  */
 
-function add_image_insert_override($size_names){
-        $size_names = array(
-                          'thumbnail' => __('Thumbnail'),
-                          'medium'    => __('Medium'),
-                          'large'     => __('Large'),
-                        );
-      return $size_names;
-};
+/**
+ * Set default selected media size to "large". 
+ * If large size not exists, select Original size. 
+ * @author Xavier Meler (jmeler@xtec.cat)
+ */
 
-add_filter('image_size_names_choose', 'add_image_insert_override' );
+function default_image_size (){
+    return 'large';
+}
 
+add_filter('pre_option_image_default_size','default_image_size');
 
 /**
  * RSS Shortcode
