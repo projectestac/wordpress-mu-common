@@ -378,7 +378,7 @@ function getRole() {
     // @aginard: in multisite system (XTECBlocs) the meta_key has the form of
     //   wp_$blogid_capatilities, but in single site (Agora), it has the form
     //   wp_capabilities. We need to differentiate them.
-    if (is_multisite()) {
+    if (is_multisite() && !MULTISITE) { // !MULTISITE is an exception for WordPress MU installations
         $blogId = get_current_blog_id();
         $caps = get_user_meta($user_id, 'wp_' . $blogId . '_capabilities', true);
     } else {
