@@ -384,11 +384,8 @@ function getRole() {
     } else {
         $caps = get_user_meta($user_id, 'wp_capabilities', true);
     }
-
-    $roles = array_keys((array) $caps);
-    $role = $roles[0];
-
-    return $role;
+    
+    return is_array($caps) ? key($caps) : false;
 }
 
 /**
