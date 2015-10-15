@@ -514,3 +514,13 @@ function wsl_component_bouncer_setup_filters_blacklist_mails() {
 </div>
 <?php
 }
+
+function add_locale_xtec($domain, $mofile) {
+    $locale = get_locale();
+    $locale_mo_length = strlen($locale) + 3;
+    if (substr($mofile, -$locale_mo_length) == $locale.'.mo') {
+        $filename = substr($mofile, 0, -$locale_mo_length).$locale.'_local.mo';
+        load_textdomain($domain, $filename);
+    }
+}
+add_action('load_textdomain', 'add_locale_xtec', 10, 2);
