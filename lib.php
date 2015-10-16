@@ -426,7 +426,12 @@ function social_login_hide_elements() {
         // Hide tabs
         $hide_elements = ["login-widget", "components", "tools", "help"];
         foreach ($hide_elements as $hide_element) {
-            $WORDPRESS_SOCIAL_LOGIN_ADMIN_TABS[$hide_element]["visible"] = false;
+        	// @nacho Show components for admin users in XTECBlocs
+        	if  ( ($hide_element == 'components') && (is_xtecblocs()) ){
+        		$WORDPRESS_SOCIAL_LOGIN_ADMIN_TABS[$hide_element]["visible"] = true;
+        	}else {        	
+            	$WORDPRESS_SOCIAL_LOGIN_ADMIN_TABS[$hide_element]["visible"] = false;
+        	}
         }
         // Hide upper right links (Documentation, Suport, Github)
         echo "<style> .wsl-container .alignright { display:none; } </style>";
