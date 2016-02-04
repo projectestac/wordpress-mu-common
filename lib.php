@@ -552,3 +552,34 @@ function cat_description($tag)
 }
 add_filter('edit_category_form_fields', 'cat_description');
 add_filter('edit_tag_form_fields', 'cat_description');
+
+/**
+ * Empty the attribute onerror in img tags
+ * 
+ * @author Toni Ginard
+ * @param string $text The content to be cleaned
+ * @return string The content cleaned
+ */
+function clean_onerror_attribute($text) {
+    if (strpos($text, 'onerror')) {
+        $dom = new DOMDocument;
+        libxml_use_internal_errors(true); // Don't show warnings due to malformed HTML code
+        $dom->loadHTML($text);
+        $toRemove = '';
+        // Get the contents of all the img elements
+        foreach ($dom->getElementsByTagName('img') as $node) {
+            $dom->saveHtml($node);
+            if ($node->hasAttribute('onerror')) {
+                $toRemove[] = $node->getAttribute('onerror');
+            }
+        }
+        // Remove the content of the onerror attribute
+        $text = str_replace($toRemove, '', $text);
+    }
+    return $text;
+}
+
+// Clean onerror attribute in widget text
+add_filter('widget_text', 'clean_onerror_attribute');
+// Clean onerror attribute in all the posts (pages, articles, ...)
+add_filter('the_content', 'clean_onerror_attribute');
