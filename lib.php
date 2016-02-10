@@ -520,19 +520,18 @@ function wsl_component_bouncer_setup_filters_blacklist_mails() {
 <?php
 }
 
-// Allow HTML in description category/tag
-// remove the html filtering
-/*
-Plugin Name: Tinymce Category Description
-Description: Adds a tinymce editor to the category description box
-Author: Paulund
-Author URI: http://www.paulund.co.uk
-Version: 1.0
-License: GPL2
+/**
+ * Plugin Name: Tinymce Category Description
+ * Description: Adds a tinymce editor to the category description box
+ * Author: Paulund
+ * Author URI: http://www.paulund.co.uk
+ * Version: 1.0
+ * License: GPL2
 */
-// remove the html filtering
+// Remove the html filtering
 remove_filter( 'pre_term_description', 'wp_filter_kses' );
 remove_filter( 'term_description', 'wp_kses_data' );
+
 function cat_description($tag)
 { ?>
     <table class="form-table">
@@ -550,8 +549,29 @@ function cat_description($tag)
     </table>
     <?php
 }
+
+// Allow HTML in description category/tag
 add_filter('edit_category_form_fields', 'cat_description');
 add_filter('edit_tag_form_fields', 'cat_description');
+
+// Remove the field "description" in category edition and in bp-docs tags
+function remove_default_category_description() {
+    global $current_screen;
+echo $current_screen->id;
+    if (($current_screen->id == 'edit-category') 
+        || ($current_screen->id == 'edit-post_tag') 
+        || ($current_screen->id == 'edit-bp_docs_associated_item')
+        || ($current_screen->id == 'edit-bp_docs_tag')) {
+    ?>
+        <script type="text/javascript">
+        jQuery(function($) {
+            $('textarea#description').closest('tr.form-field').remove();
+        });
+        </script>
+    <?php
+    }
+}
+add_action('admin_head', 'remove_default_category_description');
 
 /**
  * Empty the attribute onerror in img tags
