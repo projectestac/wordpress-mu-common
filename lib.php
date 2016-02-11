@@ -603,3 +603,52 @@ function clean_onerror_attribute($text) {
 add_filter('widget_text', 'clean_onerror_attribute');
 // Clean onerror attribute in all the posts (pages, articles, ...)
 add_filter('the_content', 'clean_onerror_attribute');
+
+//Get multiple categories and filter posts from URL
+//Solution taken from:
+// http://wordpress.stackexchange.com/questions/27158/wordpress-multiple-category-search
+add_action( 'parse_request', 'multiple_categories', 11);
+function multiple_categories( $query ) {
+
+    if (!isset($query->query_vars['category_name'])) {
+        return $query;
+    }
+
+    $and = strpos($query->query_vars['category_name'], '+');
+    $or = strpos($query->query_vars['category_name'], ',');
+    if ($and === false && $or === false) {
+        return $query;
+    }
+
+    // split cat query on a space to get IDs separated by '+' in URL
+    $cats = explode('/', $query->query_vars['category_name']);
+    $subcat = array_pop($cats);
+    if ($and) {
+        $subcats = explode('+', $subcat);
+    } else {
+        $subcats = explode(',', $subcat);
+    }
+
+    if (count($subcats) > 1) {
+        $maincat = implode('/', $cats);
+        if (!empty($maincat)) {
+            $maincat .= '/';
+        }
+        $catids = array();
+        foreach ($subcats as $subcat) {
+            $cat = get_category_by_path($maincat.$subcat);
+            if ($cat) {
+                $catids[] = $cat->cat_ID;
+            }
+        }
+        if (!empty($catids)) {
+            unset($query->query_vars['category_name']);
+            if ($and) {
+                $query->query_vars['category__and'] = $catids;
+            } else {
+                $query->query_vars['category__in'] = $catids;
+            }
+        }
+    }
+    return $query;
+}
