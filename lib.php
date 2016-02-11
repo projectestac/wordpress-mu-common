@@ -557,7 +557,7 @@ add_filter('edit_tag_form_fields', 'cat_description');
 // Remove the field "description" in category edition and in bp-docs tags
 function remove_default_category_description() {
     global $current_screen;
-echo $current_screen->id;
+
     if (($current_screen->id == 'edit-category') 
         || ($current_screen->id == 'edit-post_tag') 
         || ($current_screen->id == 'edit-bp_docs_associated_item')
