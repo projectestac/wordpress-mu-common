@@ -653,8 +653,6 @@ function multiple_categories( $query ) {
     return $query;
 }
 
-
-
 // TO REVIEW WHEN UPGRADING WP version
 
 /**
@@ -673,3 +671,46 @@ function fix_ssl_srcset( $sources ) {
   return $sources;
 }
 add_filter( 'wp_calculate_image_srcset', 'fix_ssl_srcset' );
+
+/**
+ * Check script label to only allow Gallery.io scripts
+ * @author Xavi Nieto
+ * @param string $data
+ * @return string The $data
+ */
+function check_content_script_types( $data ) {
+
+    global $current_user;
+
+    //Check role contributor
+    if(in_array('contributor',$current_user->roles)){
+        $scriptError = false;
+        $dataClean = $data;
+        $contentPostForCheckScriptTypes = $data['post_content'];
+        $searchScript = explode('<script',$contentPostForCheckScriptTypes);
+
+        if(count($searchScript) > 1){
+            for($i=1;$i<count($searchScript);$i++) {
+                //check gallery script
+                $cleanString = str_replace('\\','',$searchScript[$i]);
+                $searchScriptGallery = preg_match('/([\s\S]*?)+(GalleryLoaded\b)+([\s\S]*?)+(<\/script>)/',$cleanString); //Check is a gallery.io
+                $searchScriptGalleryJQuery = preg_match('/src=+(\'|\")+(http\b|https\b)*+:\/\/cdn.jsdelivr.net\/jquery/',$cleanString); //check jquery script to cdn.jsdelivr.net
+
+                if($searchScriptGallery === false && $searchScriptGalleryJQuery === 0){
+                    $scriptError = true;
+                    $dataClean['post_content'] = str_replace('<script'.$searchScript[$i],'',$dataClean['post_content']); //Delete code script not valid
+                }
+            }
+        }
+
+        if($scriptError === true){
+            return $dataClean;
+        }else{
+            return $data;
+        }
+    }else{
+        return $data;
+    }
+
+}
+add_filter( 'wp_insert_post_data', 'check_content_script_types' );
