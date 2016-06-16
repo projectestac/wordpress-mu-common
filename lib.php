@@ -717,6 +717,14 @@ function check_content_script_types( $data ) {
 add_filter( 'wp_insert_post_data', 'check_content_script_types' );
 
 /**
+ * Load shortcodes into taxonomy descriptions, like categories or tags
+ *
+ * @author Xavi Nieto
+ */
+add_filter( 'term_description', 'shortcode_unautop');
+add_filter( 'term_description', 'do_shortcode');
+
+/**
  * Deactivate pingback to avoid attacks to other sites
  *
  * @author Toni Ginard
