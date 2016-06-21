@@ -653,6 +653,16 @@ function multiple_categories( $query ) {
     return $query;
 }
 
+/**
+ * Deactivate pingback to avoid attacks to other sites
+ *
+ * @author Toni Ginard
+ */
+add_filter( 'xmlrpc_methods', function( $methods ) {
+    unset( $methods['pingback.ping'] );
+    return $methods;
+}, 1 );
+
 
 
 // TO REVIEW WHEN UPGRADING WP version
