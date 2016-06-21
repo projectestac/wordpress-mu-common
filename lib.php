@@ -662,24 +662,3 @@ add_filter( 'xmlrpc_methods', function( $methods ) {
     unset( $methods['pingback.ping'] );
     return $methods;
 }, 1 );
-
-
-
-// TO REVIEW WHEN UPGRADING WP version
-
-/**
- * Fix thumbnails problem when upgrading to 4.4.3: https://wordpress.org/support/topic/thumbnails-broken-after-44-upgrade
- * Has been fixed for WP 4.5. So when we upgrade to 4.5, this patch will not longer be necessary
- *
- * @author Sara Arjona
- * @param string $sources
- * @return string The $sources
- */
-function fix_ssl_srcset( $sources ) {
-  foreach ( $sources as &$source ) {
-    $source['url'] = set_url_scheme( $source['url'] );
-  }
-
-  return $sources;
-}
-add_filter( 'wp_calculate_image_srcset', 'fix_ssl_srcset' );
