@@ -653,6 +653,69 @@ function multiple_categories( $query ) {
     return $query;
 }
 
+/* Check script label to only allow Gallery.io scripts
+ * @author Xavi Nieto
+ * @param array $data
+ * @return array The $data
+ */
+function check_content_script_types( $data ) {
+
+    global $current_user;
+
+    // Check user role is contributor
+    if(in_array('contributor',$current_user->roles)){
+
+        $scriptError = false;
+        $dataClean = $data;
+        $contentPostForCheckScriptTypes = $data['post_content'];
+
+        // split to array. delimiter "/<script/"
+        $searchScript = preg_split("/<script/",$contentPostForCheckScriptTypes);
+
+        if(count($searchScript) > 1){
+            for($i=1;$i<count($searchScript);$i++) {
+
+                // Initialize flags
+                $searchScriptGallery;
+                $searchScriptGalleryJQuery;
+
+                $searchScriptGallery = preg_match_all("/\sGalleryLoaded\s/",$searchScript[$i],$matches); // Check gallery.io script
+
+                // Check return 2 matches exactly
+                if(count($matches[0]) != 2){
+                    $searchScriptGallery = 0;
+                }
+
+                $searchScriptGalleryJQuery = preg_match('/(http\b|https\b)*:\/\/cdn.jsdelivr.net\/jquery/',$searchScript[$i]); // Check jQuery script to cdn.jsdelivr.net*/
+
+                if($searchScriptGallery == 0 && $searchScriptGalleryJQuery == 0){
+                    $scriptError = true;
+
+                    // Search close label script
+                    $searchScriptResult = explode('</script>',$searchScript[$i]);
+                    if(count($searchScriptResult) > 1){
+                        $dataClean['post_content'] = str_replace('<script'.$searchScriptResult[0].'</script>','',$dataClean['post_content']); // Delete code script not valid into scripts label
+                    }else{
+                        $dataClean['post_content'] = str_replace('<script'.$searchScript[$i],'',$dataClean['post_content']); // Delete code script not valid
+                    }
+                }
+            }
+        }
+
+        if($scriptError === true){
+            // If we found error return $dataClean ($data modify)
+            return $dataClean;
+        }else{
+            // If we not found error return original $data
+            return $data;
+        }
+    }else{
+        return $data;
+    }
+
+}
+add_filter( 'wp_insert_post_data', 'check_content_script_types' );
+
 /**
  * Deactivate pingback to avoid attacks to other sites
  *
