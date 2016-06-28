@@ -725,6 +725,14 @@ add_filter( 'term_description', 'shortcode_unautop');
 add_filter( 'term_description', 'do_shortcode');
 
 /**
+ * Load shortcodes into description to category, tags and taxonomies
+ *
+ * @author Xavi Nieto
+ */
+add_filter( 'term_description', 'shortcode_unautop');
+add_filter( 'term_description', 'do_shortcode');
+
+/**
  * Deactivate pingback to avoid attacks to other sites
  *
  * @author Toni Ginard
