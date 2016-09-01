@@ -145,20 +145,21 @@ function users_own_attachments( $wp_query_obj ) {
 add_action('pre_get_posts','users_own_attachments');
 
 /**
- * Remove the "Dashboard" from the admin menu for contributor user roles
+ * Remove the "Dashboard" from the admin menu for contributor and xtec_teacher user roles.
  * @author Nacho Abejaro
+ * @author Xavi Nieto
  */
 function remove_contributor_dashboard() {
 
-    $role = getRole();
+    $user = wp_get_current_user();
 
-    if ($role === 'contributor') {
+    if ( in_array( 'contributor', (array) $user->roles ) or in_array( 'xtec_teacher', (array) $user->roles ) ){
+
         remove_menu_page('edit-comments.php');
         remove_menu_page('edit.php?post_type=gce_feed');
         remove_menu_page('tools.php');
     }
 }
-
 add_action('admin_menu', 'remove_contributor_dashboard');
 
 /**
