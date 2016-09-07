@@ -1,6 +1,6 @@
-/*****************************************************************
-Shortcodes
-******************************************************************/
+
+/* Shortcodes */
+
 .rss-date{
     color:#888;
     font-size:0.8em;
@@ -23,8 +23,27 @@ Shortcodes
 }
 
 .rss-sc li:before {
-content: "\f345";
-font: 14px/1 "dashicons";
-color: #BBB;
-margin-left:-1em;
+    content: "\f345";
+    font: 14px/1 "dashicons";
+    color: #BBB;
+    margin-left:-1em;
+}
+
+/* Simple Calendar */
+
+table.simcal-calendar-grid,
+table.simcal-calendar-grid thead tr th,
+table.simcal-calendar-grid tfoot tr th,
+table.simcal-calendar-grid tbody tr td,
+table.simcal-calendar-grid tr td,
+table.simcal-calendar-grid tfoot tr td {
+    border: none;
+}
+
+.simcal-week-day {
+    background-color: #ffffff; /* Background color for day names: dl, dm, dc, ... */
+}
+
+.simcal-default-calendar-grid {
+    width: 94%; /* Widget width. Overrides default value of 100% */
 }
