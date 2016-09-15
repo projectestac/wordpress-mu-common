@@ -747,3 +747,22 @@ add_filter( 'xmlrpc_methods', function( $methods ) {
     unset( $methods['pingback.ping'] );
     return $methods;
 }, 1 );
+
+/**
+ * Add flashvars to valid elements for tinymc
+ *
+ * @author Xavier Nieto
+ */
+function add_flashvars_tinymc( $init ) {
+
+    $ext = 'embed[width|height|name|flashvars|src|bgcolor|align|play|loop|quality|allowscriptaccess|type|pluginspage]';
+
+    if ( isset( $init['extended_valid_elements'] ) ) {
+        $init['extended_valid_elements'] .= ',' . $ext;
+    } else {
+        $init['extended_valid_elements'] = $ext;
+    }
+
+    return $init;
+}
+add_filter('tiny_mce_before_init', 'add_flashvars_tinymc');
