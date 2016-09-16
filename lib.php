@@ -734,3 +734,229 @@ add_filter( 'xmlrpc_methods', function( $methods ) {
     unset( $methods['pingback.ping'] );
     return $methods;
 }, 1 );
+
+
+/**
+ * Load summary image authomatically when publish content: gallery image, video youtube (shortcode + iframe), video vimeo (shortcode + iframe), url image, carousel, gallery.io
+ *
+ * @author Xavier Nieto
+ */
+function xtec_image_summary($content){
+
+    global $post;
+
+    $currentFirstImage = explode( "alt=", $content );
+    $currentFirstImage = str_ireplace("'", "\"", $currentFirstImage[1] );
+    $currentFirstImage = str_ireplace( "\\", "", $currentFirstImage );
+    $currentFirstImage = explode( '"', $currentFirstImage );
+
+    if( count($currentFirstImage) > 1 ){
+
+        $postID = $post->ID;
+
+        $attached_image = get_posts( array(
+            'post_type' => 'attachment',
+            'posts_per_page' => -1,
+        ) );
+
+        foreach ($attached_image as $attachment) {
+            if ( $attachment->post_title == $currentFirstImage[1] ){
+                set_post_thumbnail( $post->ID, $attachment->ID );
+                return true;
+            }
+        }
+
+        return false;
+
+    } else {
+
+        $currentFirstImage = explode( "src=", $content );
+        $currentFirstImage = str_ireplace( "'", "\"", $currentFirstImage[1] );
+        $currentFirstImage = str_ireplace( "\\", "", $currentFirstImage );
+        $currentFirstImage = explode( '"', $currentFirstImage );
+
+        $summaryImage = $currentFirstImage[1];
+
+        $ch = curl_init ( $summaryImage );
+        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
+        curl_exec ( $ch );
+
+        $imageBytes = curl_getinfo( $ch, CURLINFO_SIZE_DOWNLOAD );
+
+        if( $imageBytes < 2097152 ){
+
+            add_action( 'add_attachment', 'xtec_video_thumbnail_attachment' );
+            media_sideload_image( $summaryImage, $post->ID );
+            remove_action( 'add_attachment', 'xtec_video_thumbnail_attachment' );
+            return true;
+
+        }
+
+        return false;
+    }
+}
+
+function xtec_video_image_summary_y( $content ){
+
+    global $post;
+
+    if ( preg_match( '%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i', $content, $result ) ) {
+
+        $summaryImage = 'https://img.youtube.com/vi/'.$result[1].'/mqdefault.jpg';
+
+        if ( stripos( $summaryImage, 'iframe' ) !== false ){
+
+            preg_match( '/youtube.com\/embed\/([a-zA-Z0-9]*)/', $result[0], $result );
+            $summaryImage = 'https://img.youtube.com/vi/'.$result[1].'/mqdefault.jpg';
+
+        }
+
+        add_action( 'add_attachment', 'xtec_video_thumbnail_attachment' );
+        media_sideload_image( $summaryImage, $post->ID );
+        remove_action( 'add_attachment', 'xtec_video_thumbnail_attachment' );
+
+        return true;
+
+    }
+
+    return false;
+}
+
+function xtec_video_image_summary_v( $content ){
+
+    global $post;
+
+    $url = '';
+
+    if ( preg_match( "/vimeo\.com\/(\w+\s*\/?)*([0-9]+)*$/i", $content, $result ) ){
+
+        $url = "https://vimeo.com/api/oembed.json?url=https%3A//vimeo.com/". $result[1];
+
+    } else if ( preg_match("/src=(\"|')\S*(\"|')/", $content, $result ) ){
+
+        $result = str_ireplace( "src=", "", $result[0] );
+        $result = str_ireplace( "'", "\"", $result );
+        $result = str_ireplace( "\\", "", $result );
+        $result = str_ireplace( "\"", "", $result );
+
+        $url = "https://vimeo.com/api/oembed.json?url=". $result;
+
+    } else if ( preg_match( '/(http|https):\/\/player.vimeo.com\/video\/([0-9]*)/i', $content, $result ) ){
+
+        $url = "https://vimeo.com/api/oembed.json?url=". $result[0];
+
+    }
+
+    if( $url != "" ){
+
+        $ch = curl_init();
+        curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
+        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+        curl_setopt( $ch, CURLOPT_URL, $url );
+        $result = curl_exec( $ch );
+        curl_close( $ch );
+
+        $summaryImage = json_decode( $result, true );
+
+        add_action( 'add_attachment','xtec_video_thumbnail_attachment' );
+        media_sideload_image( $summaryImage['thumbnail_url'], $post->ID );
+        remove_action( 'add_attachment','xtec_video_thumbnail_attachment' );
+
+        return true;
+
+    }
+
+    return false;
+}
+
+function xtec_shortcode_image_summary( $shortCode ){
+
+    $shortCode = str_ireplace( '\\','',$shortCode );
+    $htmlCode = apply_filters( 'the_content',$shortCode );
+
+    if ( $htmlCode !== '' ){
+
+        global $post;
+
+        $currentFirstImage = explode( "src=",$htmlCode );
+        $currentFirstImage = str_ireplace( "'","\"",$currentFirstImage[1] );
+        $currentFirstImage = str_ireplace( "\\","",$currentFirstImage );
+        $currentFirstImage = explode( '"',$currentFirstImage );
+
+        if( count( $currentFirstImage ) > 1 ){
+
+            $postID = $post->ID;
+
+            $attached_image = get_posts( array(
+                'post_type' => 'attachment',
+                'posts_per_page' => -1,
+            ) );
+
+            foreach ( $attached_image as $attachment ) {
+                if ( $attachment->guid == $currentFirstImage[1] ){
+                    set_post_thumbnail( $post->ID, $attachment->ID );
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+    return false;
+}
+
+function xtec_video_thumbnail_attachment( $att_id ){
+    global $post;
+    set_post_thumbnail( $post->ID, $att_id );
+}
+
+function authomatic_summary_image() {
+
+    $post = $_POST;
+
+    if ( $post['post_type'] == 'post' ){
+
+        $already_has_thumb = has_post_thumbnail($post['post_ID']);
+        if ( ! $already_has_thumb ){
+            $content = $post['content'];
+
+            $content = str_ireplace("/><img","/>\n<img",$content);
+            $content = str_ireplace("/><iframe","/>\n<iframe",$content);
+
+            $pattern = '/<img.*>|youtu|vimeo|\[.*\]/';
+            preg_match_all($pattern,$content,$matches);
+
+            $thumbnail = false;
+
+            foreach ( $matches[0] as $match ) {
+
+                if ( stripos($match,'[slideshow_deploy') !== false ){
+                    $shortCode = $match;
+                    $match = 'shortcode';
+                }
+
+                switch ( $match ) {
+                    case 'youtu':
+                        $thumbnail = xtec_video_image_summary_y( $content );
+                        break;
+                    case 'vimeo':
+                        $thumbnail = xtec_video_image_summary_v( $content );
+                        break;
+                    case 'shortcode':
+                        $thumbnail = xtec_shortcode_image_summary( $shortCode );
+                        break;
+                    default:
+                        $thumbnail = xtec_image_summary( $match );
+                        break;
+                }
+
+                if ( $thumbnail == true ){
+                    break;
+                }
+            }
+        }
+    }
+}
+add_action('draft_to_publish', 'authomatic_summary_image');
+add_action('new_to_publish', 'authomatic_summary_image');
+add_action('pending_to_publish', 'authomatic_summary_image');
+add_action('future_to_publish', 'authomatic_summary_image');
