@@ -145,24 +145,6 @@ function users_own_attachments( $wp_query_obj ) {
 add_action('pre_get_posts','users_own_attachments');
 
 /**
- * Remove the "Dashboard" from the admin menu for contributor and xtec_teacher user roles.
- * @author Nacho Abejaro
- * @author Xavi Nieto
- */
-function remove_contributor_dashboard() {
-
-    $user = wp_get_current_user();
-
-    if ( in_array( 'contributor', (array) $user->roles ) or in_array( 'xtec_teacher', (array) $user->roles ) ){
-
-        remove_menu_page('edit-comments.php');
-        remove_menu_page('edit.php?post_type=gce_feed');
-        remove_menu_page('tools.php');
-    }
-}
-add_action('admin_menu', 'remove_contributor_dashboard');
-
-/**
  * Disable gravatar.com calls.
  * @author Víctor Saavedra (vsaavedr@xtec.cat)
  */
@@ -337,10 +319,13 @@ add_filter('pre_get_posts', 'posts_per_page');
 
 
 /**
- * Exclude admin pages for Contributor user role
+ * Block access to some admin pages to roles contributor and xtec_teacher
+ *
  * @author Nacho Abejaro
+ * @author Toni Ginard
  */
-function exclude_pages_from_admin($query) {
+function exclude_pages_from_admin() {
+
     global $pagenow;
 
     $role = getRole();
@@ -350,23 +335,51 @@ function exclude_pages_from_admin($query) {
         'tools.php',
     );
 
-    $restrictedPagesWithPost = array(
-        'edit.php?post_type=gce_feed',
-        'post-new.php?post_type=gce_feed',
-    );
+    // If user has role xtec_teacher, filter only restricted pages
+    if ( $role == 'xtec_teacher' ) {
+        if ( in_array( $pagenow, $restrictedPages )) {
+            wp_die( __( 'You do not have permission to do that.' ) );
+        } else {
+            return ;
+        }
+    }
 
-    $post_type = get_current_post_type();
+    // If user only has role contributor, filter also simple calendar pages
+    if ( $role == 'contributor' ) {
+        $restrictedPagesWithPost = array (
+            'edit.php?post_type=calendar',
+            'post-new.php?post_type=calendar',
+        );
 
-    $postUrl = $pagenow . '?post_type=' . $post_type;
+        $postUrl = $pagenow . '?post_type=' . get_current_post_type();
 
-    if ($role == 'contributor' && (
-            ( in_array($pagenow, $restrictedPages) || in_array($postUrl, $restrictedPagesWithPost) ))
-    ) {
-        wp_die(__('You do not have permission to do that.'));
+        if ( in_array( $pagenow, $restrictedPages ) || in_array( $postUrl, $restrictedPagesWithPost )) {
+            wp_die( __( 'You do not have permission to do that.' ) );
+        }
+    }
+
+}
+add_filter('parse_query', 'exclude_pages_from_admin');
+
+/**
+ * Hide menu options in the Dashboard to roles contributor and xtec_teacher
+ *
+ * @author Nacho Abejaro
+ * @author Xavi Nieto
+ * @author Toni Ginard
+ */
+function xtec_remove_menu_pages() {
+
+    $user = wp_get_current_user();
+    $roles = (array) $user->roles;
+
+    if ( in_array( 'contributor', $roles ) || in_array( 'xtec_teacher', $roles )) {
+        remove_menu_page('edit-comments.php');
+        remove_menu_page('edit.php?post_type=calendar');
+        remove_menu_page('tools.php');
     }
 }
-
-add_filter('parse_query', 'exclude_pages_from_admin');
+add_action('admin_menu', 'xtec_remove_menu_pages');
 
 /**
  * Get the user Role
