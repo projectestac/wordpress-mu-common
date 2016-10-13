@@ -735,11 +735,15 @@ add_filter( 'xmlrpc_methods', function( $methods ) {
     return $methods;
 }, 1 );
 
-
 /**
- * Load summary image authomatically when publish content: gallery image, video youtube (shortcode + iframe), video vimeo (shortcode + iframe), url image, carousel, gallery.io
+ * Add a summary image automatically when publishing content: gallery image,
+ * video youtube (shortcode + iframe), video vimeo (shortcode + iframe),
+ * url image, carousel, gallery.io
  *
+ * @param $content
  * @author Xavier Nieto
+ *
+ * @return bool
  */
 function xtec_image_summary($content){
 
@@ -751,8 +755,6 @@ function xtec_image_summary($content){
     $currentFirstImage = explode( '"', $currentFirstImage );
 
     if( count($currentFirstImage) > 1 ){
-
-        $postID = $post->ID;
 
         $attached_image = get_posts( array(
             'post_type' => 'attachment',
@@ -783,7 +785,7 @@ function xtec_image_summary($content){
 
         $imageBytes = curl_getinfo( $ch, CURLINFO_SIZE_DOWNLOAD );
 
-        if( $imageBytes < 2097152 ){
+        if( $imageBytes < 2097152 ) { // 2 MB
 
             add_action( 'add_attachment', 'xtec_video_thumbnail_attachment' );
             media_sideload_image( $summaryImage, $post->ID );
@@ -885,8 +887,6 @@ function xtec_shortcode_image_summary( $shortCode ){
 
         if( count( $currentFirstImage ) > 1 ){
 
-            $postID = $post->ID;
-
             $attached_image = get_posts( array(
                 'post_type' => 'attachment',
                 'posts_per_page' => -1,
@@ -909,7 +909,7 @@ function xtec_video_thumbnail_attachment( $att_id ){
     set_post_thumbnail( $post->ID, $att_id );
 }
 
-function authomatic_summary_image() {
+function automatic_summary_image() {
 
     $post = $_POST;
 
@@ -924,8 +924,6 @@ function authomatic_summary_image() {
 
             $pattern = '/<img.*>|youtu|vimeo|\[.*\]/';
             preg_match_all($pattern,$content,$matches);
-
-            $thumbnail = false;
 
             foreach ( $matches[0] as $match ) {
 
@@ -956,7 +954,7 @@ function authomatic_summary_image() {
         }
     }
 }
-add_action('draft_to_publish', 'authomatic_summary_image');
-add_action('new_to_publish', 'authomatic_summary_image');
-add_action('pending_to_publish', 'authomatic_summary_image');
-add_action('future_to_publish', 'authomatic_summary_image');
+add_action('draft_to_publish', 'automatic_summary_image');
+add_action('new_to_publish', 'automatic_summary_image');
+add_action('pending_to_publish', 'automatic_summary_image');
+add_action('future_to_publish', 'automatic_summary_image');
