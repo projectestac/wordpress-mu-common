@@ -98,10 +98,8 @@ add_action('add_meta_boxes', 'set_order_meta_boxes', 10, 2);
  */
 function default_comments_off( $data ) {
 	if( $data['post_type'] == 'page' && $data['post_status'] == 'auto-draft' ) {
-		$data['comment_status'] = 'close';
         $data['ping_status'] = 'close';
     }elseif ( $data['post_type'] == 'post' && $data['post_status'] == 'auto-draft' ) {
-    	$data['comment_status'] = 'open';
     	$data['ping_status'] = 'open';
     }
 	return $data;
