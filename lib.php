@@ -764,3 +764,16 @@ function add_flashvars_tinymc( $init ) {
     return $init;
 }
 add_filter('tiny_mce_before_init', 'add_flashvars_tinymc');
+
+/**
+ * Allow requests to some external hosts (like Gencat) to avoid problems with RSS (for instance)
+ *
+ * @author Sara Arjona Téllez
+ */
+function xtec_allowed_external_host( $allow, $host, $url ) {
+    if (strpos($host, '.gencat.cat') !== FALSE || strpos($host, '.xtec.cat') !== FALSE || strpos($host, '.edu365.cat') !== FALSE) {
+        $allow = true;
+    }
+    return $allow;
+}
+add_filter('http_request_host_is_external', 'xtec_allowed_external_host', 10, 3);
