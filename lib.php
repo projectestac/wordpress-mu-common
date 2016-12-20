@@ -773,3 +773,17 @@ function xtec_allowed_external_host( $allow, $host, $url ) {
     return $allow;
 }
 add_filter('http_request_host_is_external', 'xtec_allowed_external_host', 10, 3);
+
+// Simple Calendar
+
+/**
+ * Hidden some metaboxes to nav-menus
+ *
+ * @author Xavier Nieto
+ */
+function remove_nav_menu_metaboxes( $metaboxes ){
+    if ( ! is_xtec_super_admin() ) {
+        remove_meta_box('add-calendar_category', 'nav-menus', 'side');
+    }
+}
+add_action( 'admin_head-nav-menus.php', 'remove_nav_menu_metaboxes', 10, 1 );
