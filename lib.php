@@ -17,8 +17,6 @@ function remove_post_meta_boxes() {
 	remove_meta_box('trackbacksdiv', 'post', 'side');
 	remove_meta_box('postcustom', 'post', 'normal');
 	remove_meta_box('postcustom', 'post', 'side');
-	remove_meta_box('rawhtml_meta_box', 'post', 'side');
-	remove_meta_box('rawhtml_meta_box', 'post', 'normal');
 	remove_meta_box('layout_meta', 'post', 'side');
 	remove_meta_box('layout_meta', 'post', 'normal');
 }
@@ -29,8 +27,6 @@ add_action('do_meta_boxes', 'remove_post_meta_boxes');
  * @author Xavi Meler
  */
 function remove_page_meta_boxes() {
-	remove_meta_box('rawhtml_meta_box', 'page', 'normal');
-	remove_meta_box('rawhtml_meta_box', 'page', 'side');
 	remove_meta_box('postcustom', 'page', 'normal');
 	remove_meta_box('postimagediv', 'page', 'side');
 }
