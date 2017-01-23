@@ -317,12 +317,15 @@ add_filter('pre_get_posts', 'posts_per_page');
  *
  * @author Nacho Abejaro
  * @author Toni Ginard
+ * @author Xavier Nieto
  */
 function exclude_pages_from_admin() {
 
     global $pagenow;
 
-    $role = getRole();
+    // Get roles to current user
+    $user = wp_get_current_user();
+    $role = (array) $user->roles;
 
     $restrictedPages = array(
         'edit-comments.php',
@@ -330,7 +333,7 @@ function exclude_pages_from_admin() {
     );
 
     // If user has role xtec_teacher, filter only restricted pages
-    if ( $role == 'xtec_teacher' ) {
+    if ( in_array( 'xtec_teacher', $role ) ){
         if ( in_array( $pagenow, $restrictedPages )) {
             wp_die( __( 'You do not have permission to do that.' ) );
         } else {
@@ -339,10 +342,12 @@ function exclude_pages_from_admin() {
     }
 
     // If user only has role contributor, filter also simple calendar pages
-    if ( $role == 'contributor' ) {
+    if ( in_array( 'contributor', $role ) ){
         $restrictedPagesWithPost = array (
             'edit.php?post_type=calendar',
             'post-new.php?post_type=calendar',
+            'edit.php?post_type=gce_feed',
+            'post-new.php?post_type=gce_feed',
         );
 
         $postUrl = $pagenow . '?post_type=' . get_current_post_type();
@@ -353,7 +358,7 @@ function exclude_pages_from_admin() {
     }
 
 }
-add_filter('parse_query', 'exclude_pages_from_admin');
+add_action('admin_init', 'exclude_pages_from_admin');
 
 /**
  * Hide menu options in the Dashboard to roles contributor and xtec_teacher
