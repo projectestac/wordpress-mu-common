@@ -792,3 +792,13 @@ function remove_nav_menu_metaboxes( $metaboxes ){
     }
 }
 add_action( 'admin_head-nav-menus.php', 'remove_nav_menu_metaboxes', 10, 1 );
+
+/**
+ * Remove recording cookie for posts protected with password
+ *
+ * @author Sara Arjona Téllez (from http://agora.xtec.cat/moodle/moodle/mod/forum/discuss.php?d=93207)
+ */
+function set_cookie_expire () {
+    return false;
+}
+add_filter('post_password_expires', 'set_cookie_expire');
