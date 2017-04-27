@@ -857,3 +857,131 @@ function custom_discussion_meta_box($post) {
     </p>
     <?php
 }
+
+
+/* Add field to select order posts into categories and change order to show posts pages
+ * @author Xavi Nieto
+ */
+
+// Add custom field to select order posts into category
+function cat_sort($tag){
+
+    $term_id = $tag->term_id;
+    $cat_meta = get_option( "category_$term_id");
+
+?>
+    <table class="form-table">
+        <tr class="form-field">
+            <th scope="row" valign="top"><label for="sort"><?php _e('Posts order', 'common-functions'); ?></label></th>
+            <td>
+            <select name="cat_sort">
+                <option value="DESC" <?php if( $cat_meta['sort_posts'] == 'DESC' ){ ?> selected <?php } ?>><?php _e('Newest first','common-functions') ?></option>
+                <option value="ASC" <?php if( $cat_meta['sort_posts'] == 'ASC' ){ ?> selected <?php } ?>><?php _e('Oldest first','common-functions') ?></option>
+            </select>
+            </td>
+        </tr>
+    </table>
+    <?php
+}
+
+add_filter('edit_category_form_fields', 'cat_sort');
+add_filter('edit_tag_form_fields', 'cat_sort');
+
+// Save option into category
+function save_sort_category_field($term_id){
+    if ( isset( $_POST['cat_sort'] ) ) {
+        $cat_meta = get_option( "category_$term_id");
+        $cat_meta['sort_posts'] = $_POST['cat_sort'];
+        update_option( "category_$term_id", $cat_meta );
+    }
+}
+add_action ( 'edited_category', 'save_sort_category_field');
+
+// Get option order to customize posts
+function get_category_name_page($query){
+    if ( $query->query_vars['category_name'] ) {
+        $category_slug = array_pop(explode('/',$query->query_vars['category_name']));
+        $cat_ID = get_category_by_slug($category_slug)->term_id;
+        $cat_meta = get_option( "category_$cat_ID");
+        $_SESSION['xtec_category'] = $cat_meta['sort_posts'];
+        add_action( 'pre_get_posts', 'change_order_post' );
+    } else if( is_xtecblocs() ) {
+        $_SESSION['xtec_category'] = get_option('xtec_order_posts');
+        add_action( 'pre_get_posts', 'change_order_post' );
+    }
+}
+add_action( 'parse_request', 'get_category_name_page' );
+
+// Change order to show posts
+function change_order_post( $query ){
+    if ( $_SESSION['xtec_category'] == 'ASC' ){
+        $query->set('order', 'ASC');
+    } else {
+        $query->set('order', 'DESC');
+    }
+}
+
+// Check is a homepage and get order to home category selected into 'reactor_options'
+function using_front_page_conditional_tag() {
+    if ( is_front_page() and ! is_xtecblocs() ) {
+        $reactor_options = get_option('reactor_options');
+        $cat_ID = $reactor_options['frontpage_post_category'];
+        if( !isset($cat_ID) or $cat_ID == '-1'){
+            $_SESSION['xtec_category'] = get_option('xtec_order_posts');
+        } else {
+            $cat_meta = get_option( "category_$cat_ID");
+            $_SESSION['xtec_category'] = $cat_meta['sort_posts'];
+        }
+        add_action( 'pre_get_posts', 'change_order_post' );
+    }
+}
+add_action( 'loop_start', 'using_front_page_conditional_tag' );
+
+/* Admin init */
+add_action( 'admin_init', 'my_settings_init' );
+
+/* Settings Init */
+function my_settings_init(){
+    /* Register Settings */
+    register_setting(
+        'reading',               // Options group
+        'xtec_order_posts',      // Option name/database
+        'order_posts_settings_sanitize' // sanitize callback function
+    );
+
+    /* Create settings section */
+    add_settings_section(
+        'xtec_home_order_post',            // Section ID
+        '',                                // Section title
+        '', // Section callback function
+        'reading'                          // Settings page slug
+    );
+
+    /* Create settings field */
+    add_settings_field(
+        'my-settings-field-id',       // Field ID
+        __('Posts order into home page','common-functions'),       // Field title
+        'order_posts_field_callback', // Field callback function
+        'reading',                    // Settings page slug
+        'xtec_home_order_post'        // Section ID
+    );
+}
+
+/* Sanitize Callback Function */
+function order_posts_settings_sanitize( $input ){
+    return ( $input == 'ASC' ) ? 'ASC' : 'DESC';
+}
+
+/* Settings Field Callback */
+function order_posts_field_callback(){
+    ?>
+    <label for="droid-identification">
+        <select id="my-settings-field-id" name="xtec_order_posts">
+            <option value="DESC" <?php if( get_option('xtec_order_posts') == 'DESC' ){ ?> selected <?php } ?>><?php _e('Newest first','common-functions') ?></option>
+            <option value="ASC" <?php if( get_option('xtec_order_posts') == 'ASC' ){ ?> selected <?php } ?>><?php _e('Oldest first','common-functions') ?></option>
+        </select>
+    </label>
+    <?php
+}
+
+// END: Add field to select order posts into categories and change order to show posts pages

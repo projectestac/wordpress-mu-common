@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: common-functions\n"
-"POT-Creation-Date: 2015-04-23 09:53+0100\n"
-"PO-Revision-Date: 2015-05-11 12:22+0100\n"
+"POT-Creation-Date: 2017-05-02 14:17+0200\n"
+"PO-Revision-Date: 2017-05-04 17:48+0100\n"
 "Last-Translator: Toni Ginard <toni.ginard@gmail.com>\n"
 "Language-Team: \n"
 "Language: ca\n"
@@ -10,23 +10,40 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.5.4\n"
-"X-Poedit-KeywordsList: _;gettext;gettext_noop;__;_e\n"
-"X-Poedit-Basepath: .\n"
-"X-Poedit-SearchPath-0: /home/agora/workspace/agora/html/wordpress/wp-content/mu-plugins\n"
+"X-Poedit-KeywordsList: __;_e;esc_html_e;esc_html_x:1,2c;esc_html__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_attr__;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;"
+"_x:1,2c;_n:1,2;_n_noop:1,2;__ngettext:1,2;__ngettext_noop:1,2;_c,_nc:4c,1,2\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-SearchPath-0: .\n"
 
-#: /home/agora/workspace/agora/html/wordpress/wp-content/mu-plugins/common-functions.php:200
+#: lib.php:171 lib.php:186
 msgid "Image files must be smaller than "
 msgstr "Les imatges no poden ser més grans de "
 
-#: /home/agora/workspace/agora/html/wordpress/wp-content/mu-plugins/common-functions.php:199
+#: lib.php:171 lib.php:186
 msgid "Recommended width image:"
 msgstr "Amplada recomanada: "
 
-#: /home/agora/workspace/agora/html/wordpress/wp-content/mu-plugins/common-functions.php:274
+#: lib.php:245
 msgid "No item"
 msgstr "No s'ha trobat cap element"
 
-#: /home/agora/workspace/agora/html/wordpress/wp-content/mu-plugins/common-functions.php:278
+#: lib.php:249
 msgid ">"
 msgstr "Fa"
 
+#: lib.php:820
+msgid "Posts order"
+msgstr "Ordre dels articles"
+
+#: lib.php:823 lib.php:926
+msgid "Newest first"
+msgstr "Els més nous primer"
+
+#: lib.php:824 lib.php:927
+msgid "Oldest first"
+msgstr "Els més antics primer"
+
+#: lib.php:909
+msgid "Posts order into home page"
+msgstr "Ordre dels articles a la pàgina d'inici"
