@@ -907,7 +907,8 @@ add_action ( 'edited_category', 'save_sort_category_field');
 // Get option order to customize posts
 function get_category_name_page($query){
     if ( $query->query_vars['category_name'] ) {
-        $category_slug = array_pop(explode('/',$query->query_vars['category_name']));
+        $category_name = explode('/',$query->query_vars['category_name']);
+        $category_slug = array_pop($category_name);
         $cat_ID = get_category_by_slug($category_slug)->term_id;
         $cat_meta = get_option( "category_$cat_ID");
         $_SESSION['xtec_category'] = $cat_meta['sort_posts'];
