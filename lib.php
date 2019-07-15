@@ -909,7 +909,17 @@ function get_category_name_page($query){
     if (isset($query->query_vars['category_name'])) {
         $category_name = explode('/',$query->query_vars['category_name']);
         $category_slug = array_pop($category_name);
-        $cat_ID = get_category_by_slug($category_slug)->term_id;
+        $cat_obj = get_category_by_slug($category_slug);
+
+        $cat_ID = '';
+        if (is_array($cat_obj) || is_object($cat_obj)) {
+            foreach ($cat_obj as $key => $value) {
+                if ($key == 'term_id') {
+                    $cat_ID = $value;
+                }
+            }
+        }
+
         $cat_meta = get_option( "category_$cat_ID");
         $_SESSION['xtec_category'] = $cat_meta['sort_posts'];
         add_action( 'pre_get_posts', 'change_order_post' );
