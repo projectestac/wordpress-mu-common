@@ -748,6 +748,13 @@ add_filter( 'xmlrpc_methods', function( $methods ) {
 }, 1 );
 
 /**
+ * Disable XML-RPC methods that require authentication
+ *  *
+ * @author Toni Ginard
+ */
+add_filter('xmlrpc_enabled', '__return_false');
+
+/**
  * Add flashvars to valid elements for tinymc
  *
  * @author Xavier Nieto
