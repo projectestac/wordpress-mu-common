@@ -39,7 +39,8 @@ add_action('do_meta_boxes', 'remove_page_meta_boxes');
  * @author Nacho Abejaro
  * @author Sara Arjona
  */
-function set_order_meta_boxes($hidden, $screen) {
+function set_order_meta_boxes() {
+    $screen = get_current_screen();
 	$post_type = $screen->post_type;
 	// So this can be used without hooking into user_register
 	if ( ! isset($user_id) ) {
