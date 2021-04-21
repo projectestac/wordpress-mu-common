@@ -147,7 +147,7 @@ function remove_gravatar ($avatar, $id_or_email, $size, $default, $alt) {
 	return "<img alt='{$alt}' src='{$default}' class='avatar avatar-{$size} photo avatar-default' height='{$size}' width='{$size}' />";
 }
 
-add_filter('get_avatar', 'remove_gravatar', 1, 5);
+#add_filter('get_avatar', 'remove_gravatar', 1, 5);
 
 
 /**
