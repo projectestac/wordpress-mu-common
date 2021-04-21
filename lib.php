@@ -1003,3 +1003,12 @@ function order_posts_field_callback(){
 }
 
 // END: Add field to select order posts into categories and change order to show posts pages
+
+// Remove site health widget to all users but xtecadmin
+function remove_site_heath() {
+    if (!is_xtec_super_admin()) {
+        remove_meta_box('dashboard_site_health', 'dashboard', 'normal');
+    }
+}
+
+add_action('admin_init', 'remove_site_heath');
