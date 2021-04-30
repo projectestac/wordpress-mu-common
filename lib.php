@@ -1008,6 +1008,7 @@ function order_posts_field_callback(){
 function remove_site_heath() {
     if (!is_xtec_super_admin()) {
         remove_meta_box('dashboard_site_health', 'dashboard', 'normal');
+        remove_submenu_page('tools.php', 'site-health.php');
     }
 }
 
