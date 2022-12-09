@@ -932,7 +932,7 @@ add_action( 'parse_request', 'get_category_name_page' );
 
 // Change order to show posts
 function change_order_post( $query ){
-    if ( $_SESSION['xtec_category'] == 'ASC' ){
+    if (isset($_SESSION['xtec_category']) && $_SESSION['xtec_category'] === 'ASC' ){
         $query->set('order', 'ASC');
     } else {
         $query->set('order', 'DESC');
@@ -948,7 +948,9 @@ function using_front_page_conditional_tag() {
             $_SESSION['xtec_category'] = get_option('xtec_order_posts');
         } else {
             $cat_meta = get_option( "category_$cat_ID");
-            $_SESSION['xtec_category'] = $cat_meta['sort_posts'];
+            if (is_array($cat_meta)) {
+                $_SESSION['xtec_category'] = $cat_meta['sort_posts'];
+            }
         }
         add_action( 'pre_get_posts', 'change_order_post' );
     }
