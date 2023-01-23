@@ -890,9 +890,7 @@ function cat_sort($tag){
     </table>
     <?php
 }
-
 add_filter('edit_category_form_fields', 'cat_sort');
-add_filter('edit_tag_form_fields', 'cat_sort');
 
 // Save option into category
 function save_sort_category_field($term_id){
@@ -921,10 +919,12 @@ function get_category_name_page($query){
         }
 
         $cat_meta = get_option( "category_$cat_ID");
-        $_SESSION['xtec_category'] = $cat_meta['sort_posts'];
+        global $xtec_category;
+        $xtec_category = $cat_meta['sort_posts'];
         add_action( 'pre_get_posts', 'change_order_post' );
     } else if( is_xtecblocs() ) {
-        $_SESSION['xtec_category'] = get_option('xtec_order_posts');
+        global $xtec_category;
+        $xtec_category = get_option('xtec_order_posts');
         add_action( 'pre_get_posts', 'change_order_post' );
     }
 }
@@ -932,27 +932,40 @@ add_action( 'parse_request', 'get_category_name_page' );
 
 // Change order to show posts
 function change_order_post( $query ){
-    if (isset($_SESSION['xtec_category']) && $_SESSION['xtec_category'] === 'ASC' ){
-        $query->set('order', 'ASC');
-    } else {
-        $query->set('order', 'DESC');
+    global $xtec_category;
+    $order = '';
+
+    // Order can be set at category level.
+    if ($xtec_category === 'ASC' || $xtec_category === 'DESC') {
+        $order = $xtec_category;
     }
+
+    // In case the category has not set the order (maybe it is not a category), use the general setting.
+    if ($order === '') {
+        $order = get_option('xtec_order_posts');
+    }
+
+    $query->set('order', $order);
 }
 
 // Check is a homepage and get order to home category selected into 'reactor_options'
 function using_front_page_conditional_tag() {
-    if ( is_front_page() and ! is_xtecblocs() ) {
+    if (is_front_page() && !is_xtecblocs()) {
         $reactor_options = get_option('reactor_options');
         $cat_ID = $reactor_options['frontpage_post_category'];
-        if( !isset($cat_ID) or $cat_ID == '-1'){
-            $_SESSION['xtec_category'] = get_option('xtec_order_posts');
+
+        if (!isset($cat_ID) || $cat_ID === '-1') {
+            global $xtec_category;
+            $xtec_category = get_option('xtec_order_posts');
         } else {
-            $cat_meta = get_option( "category_$cat_ID");
+            $cat_meta = get_option("category_$cat_ID");
             if (is_array($cat_meta)) {
-                $_SESSION['xtec_category'] = $cat_meta['sort_posts'];
+                global $xtec_category;
+                $xtec_category = $cat_meta['sort_posts'];
             }
         }
-        add_action( 'pre_get_posts', 'change_order_post' );
+
+        add_action('pre_get_posts', 'change_order_post');
     }
 }
 add_action( 'loop_start', 'using_front_page_conditional_tag' );
