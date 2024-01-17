@@ -919,9 +919,11 @@ function get_category_name_page($query){
         }
 
         $cat_meta = get_option( "category_$cat_ID");
-        global $xtec_category;
-        $xtec_category = $cat_meta['sort_posts'];
-        add_action( 'pre_get_posts', 'change_order_post' );
+        if (!empty($cat_meta)) {
+            global $xtec_category;
+            $xtec_category = $cat_meta['sort_posts'];
+            add_action( 'pre_get_posts', 'change_order_post' );
+        }
     } else if( is_xtecblocs() ) {
         global $xtec_category;
         $xtec_category = get_option('xtec_order_posts');
