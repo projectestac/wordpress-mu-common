@@ -825,47 +825,6 @@ function no_self_ping( &$links ) {
 
 add_action( 'pre_ping', 'no_self_ping' );
 
-/**
- * Disable checkbox Trackbacks and Pingbacks into article
- *
- * @author Nacho Abejaro
- */
-add_action( 'admin_menu', 'remove_discussion_meta_box' );
-add_action( 'add_meta_boxes', 'add_custom_discussion_meta_box' );
-
-function remove_discussion_meta_box() {
-    if (!is_xtec_super_admin()) {
-        remove_meta_box('commentstatusdiv', 'post', 'normal');
-    }
-}
-
-function add_custom_discussion_meta_box() {
-    add_meta_box(
-        'custom_discussion',
-        __( 'Discussion' ),
-        'custom_discussion_meta_box',
-        'post'
-    );
-}
-
-function custom_discussion_meta_box($post) {
-    ?>
-    <input name="advanced_view" type="hidden" value="1" />
-    <p class="meta-options">
-        <label for="comment_status" class="selectit">
-            <input name="comment_status" type="checkbox" id="comment_status"
-                   value="open" <?php checked($post->comment_status, 'open'); ?> />
-            <?php _e( 'Allow comments.' ) ?>
-        </label>
-
-        <input name="ping_status" type="hidden" id="ping_status" value="closed" />
-
-        <?php do_action('post_comment_status_meta_box-options', $post); ?>
-    </p>
-    <?php
-}
-
-
 /* Add field to select order posts into categories and change order to show posts pages
  * @author Xavi Nieto
  */
