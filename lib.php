@@ -587,28 +587,33 @@ function remove_default_category_description() {
 add_action('admin_head', 'remove_default_category_description');
 
 /**
- * Empty the attribute onerror in img tags
- * 
- * @author Toni Ginard
+ * Empty the attribute onerror in img tags.
+ *
  * @param string $text The content to be cleaned
  * @return string The content cleaned
+ * @author Toni Ginard
  */
-function clean_onerror_attribute($text) {
+function clean_onerror_attribute(string $text): string
+{
     if (strpos($text, 'onerror')) {
         $dom = new DOMDocument;
         libxml_use_internal_errors(true); // Don't show warnings due to malformed HTML code
         $dom->loadHTML($text);
-        $toRemove = '';
-        // Get the contents of all the img elements
+        $toRemove = array();
+
+        // Get the contents of all the img elements.
         foreach ($dom->getElementsByTagName('img') as $node) {
-            $dom->saveHtml($node);
             if ($node->hasAttribute('onerror')) {
                 $toRemove[] = $node->getAttribute('onerror');
             }
         }
-        // Remove the content of the onerror attribute
-        $text = str_replace($toRemove, '', $text);
+
+        // Remove the content of the onerror attribute.
+        if (!empty($toRemove)) {
+            $text = str_replace($toRemove, '', $text);
+        }
     }
+
     return $text;
 }
 
